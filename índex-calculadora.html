@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de preço 3D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#eef1f4;--surface:#fff;--ink:#1b2330;--muted:#5a6577;--line:#d6dce4;--accent:#2f5bea;--accent-ink:#fff;--good:#14804a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141922;--surface:#1e2530;--ink:#eaeef4;--muted:#9aa6b8;--line:#2f3846;--accent:#6f93ff;--accent-ink:#0f1626;--good:#4cc98a}}
+:root[data-theme="dark"]{--bg:#141922;--surface:#1e2530;--ink:#eaeef4;--muted:#9aa6b8;--line:#2f3846;--accent:#6f93ff;--accent-ink:#0f1626;--good:#4cc98a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:16px 16px 140px}
+h1{font-size:1.9rem;font-weight:800;margin:8px 0 4px;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:0 0 16px}
+.layers{height:14px;border-radius:4px;margin-bottom:14px;background:repeating-linear-gradient(to bottom,var(--accent) 0 2px,transparent 2px 4px);opacity:.85}
+fieldset{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px;margin:0 0 14px}
+legend{font-weight:600;padding:0 6px;font-size:1rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:flex;flex-direction:column;font-size:.85rem;color:var(--muted);gap:4px}
+input{font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%;min-width:0}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.break{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 14px}
+.break h2{font-size:1rem;margin:0 0 10px}
+.row{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:.9rem;padding:4px 0}
+.bar{height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.row b{font-variant-numeric:tabular-nums;font-weight:600}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--accent);color:var(--accent-ink);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+.bottom div{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.big{font-size:2.2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.small{font-size:.85rem;opacity:.9;text-align:right}
+.warn{color:#c0392b;font-size:.9rem;margin:0 0 12px;display:none}
+button{font:inherit;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 12px}
+.one{grid-template-columns:1fr}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+#orcamento{display:none}
+@media print{
+  @page{margin:18mm}
+  html,body{background:#fff!important;color:#000!important}
+  :root{padding:0!important}
+  main,.bottom{display:none!important}
+  #orcamento{display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#000}
+  #orcamento h1{font-size:1.8rem;margin:0 0 4px}
+  #orcamento .meta{color:#444;margin:0 0 24px}
+  #orcamento table{width:100%;border-collapse:collapse}
+  #orcamento th,#orcamento td{text-align:left;padding:10px 8px;border-bottom:1px solid #999}
+  #orcamento th.r,#orcamento td.r{text-align:right}
+  #orcamento .tot{font-size:1.3rem;font-weight:700;text-align:right;margin-top:20px}
+  #orcamento .nota{margin-top:40px;color:#555;font-size:.9rem}
+}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Calculadora de preço 3D</h1>
+<p class="sub">Preencha os dados da peça e veja quanto cobrar.</p>
+<div class="layers" aria-hidden="true"></div>
+
+<fieldset><legend>Serviço</legend><div class="grid one">
+<label>Nome do serviço (peça)<input id="servico" type="text" placeholder="Ex.: Suporte de headset"></label>
+<label>Nome do cliente (opcional)<input id="cliente" type="text" placeholder="Ex.: Maria Silva"></label>
+</div></fieldset>
+
+<fieldset><legend>Peça</legend><div class="grid">
+<label>Peso (g)<input id="peso" type="number" inputmode="decimal" value="50" min="0"></label>
+<label>Tempo de impressão (h)<input id="horas" type="number" inputmode="decimal" value="3" min="0" step="0.1"></label>
+<label>Quantidade<input id="qtd" type="number" inputmode="numeric" value="1" min="1"></label>
+<label>Falhas e desperdício (%)<input id="falha" type="number" inputmode="decimal" value="10" min="0"></label>
+</div></fieldset>
+
+<fieldset><legend>Custos de produção</legend><div class="grid">
+<label>Filamento (R$/kg)<input id="fil" type="number" inputmode="decimal" value="120" min="0"></label>
+<label>Potência da impressora (W)<input id="watts" type="number" inputmode="decimal" value="150" min="0"></label>
+<label>Energia (R$/kWh)<input id="kwh" type="number" inputmode="decimal" value="0.90" min="0" step="0.01"></label>
+<label>Desgaste da máquina (R$/h)<input id="maq" type="number" inputmode="decimal" value="1" min="0" step="0.1"></label>
+<label>Tempo de trabalho (min)<input id="min" type="number" inputmode="decimal" value="15" min="0"></label>
+<label>Sua hora (R$/h)<input id="hora" type="number" inputmode="decimal" value="20" min="0"></label>
+<label>Embalagem e extras (R$)<input id="emb" type="number" inputmode="decimal" value="2" min="0" step="0.1"></label>
+</div></fieldset>
+
+<fieldset><legend>Venda</legend><div class="grid">
+<label>Margem de lucro (%)<input id="margem" type="number" inputmode="decimal" value="40" min="0"></label>
+<label>Taxa da plataforma (%)<input id="taxa" type="number" inputmode="decimal" value="0" min="0"></label>
+</div></fieldset>
+
+<p class="warn" id="warn">Margem + taxa precisam somar menos de 100%.</p>
+
+<section class="break"><h2>Para onde vai o custo (por peça)</h2><div id="rows"></div></section>
+<div class="actions">
+<button id="print" type="button" class="primary">Imprimir orçamento</button>
+<button id="clear" type="button">Limpar tudo</button>
+<button id="reset" type="button">Restaurar padrão</button>
+</div>
+</main>
+
+<div class="bottom"><div>
+<span><span class="small" style="text-align:left;display:block">Preço por peça</span><span class="big" id="preco">R$ 0,00</span></span>
+<span class="small"><span id="lucro"></span><br><span id="total"></span></span>
+</div></div>
+
+<section id="orcamento">
+<h1>Orçamento</h1>
+<p class="meta"><span id="o-data"></span><span id="o-cliente"></span></p>
+<table>
+<thead><tr><th>Serviço</th><th class="r">Qtd.</th><th class="r">Valor unit.</th><th class="r">Subtotal</th></tr></thead>
+<tbody><tr><td id="o-servico"></td><td class="r" id="o-qtd"></td><td class="r" id="o-unit"></td><td class="r" id="o-sub"></td></tr></tbody>
+</table>
+<p class="tot">Total: <span id="o-total"></span></p>
+<p class="nota">Valores sujeitos a confirmação. Orçamento válido por 7 dias.</p>
+</section>
+
+<script>
+var ids=['peso','horas','qtd','falha','fil','watts','kwh','maq','min','hora','emb','margem','taxa','servico','cliente'];
+var defaults={};
+ids.forEach(function(i){defaults[i]=document.getElementById(i).value});
+var KEY='calc3d-v1';
+try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)ids.forEach(function(i){if(s[i]!==undefined)document.getElementById(i).value=s[i]})}catch(e){}
+function n(i){var v=parseFloat(String(document.getElementById(i).value).replace(',','.'));return isNaN(v)?0:v}
+function brl(v){return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function calc(){
+  var qtd=Math.max(1,n('qtd'));
+  var mat=n('peso')/1000*n('fil')*(1+n('falha')/100);
+  var en=n('horas')*n('watts')/1000*n('kwh');
+  var mq=n('horas')*n('maq');
+  var mo=n('min')/60*n('hora');
+  var emb=n('emb');
+  var custo=mat+en+mq+mo+emb;
+  var f=1-(n('margem')+n('taxa'))/100;
+  var warn=document.getElementById('warn');
+  if(f<=0){warn.style.display='block';return}
+  warn.style.display='none';
+  var preco=custo/f;
+  var lucro=preco*n('margem')/100;
+  document.getElementById('preco').textContent=brl(preco);
+  document.getElementById('lucro').textContent='Lucro '+brl(lucro)+' por peça';
+  document.getElementById('total').textContent=qtd>1?('Total '+qtd+' peças: '+brl(preco*qtd)):'Custo '+brl(custo);
+  var sv=document.getElementById('servico').value.trim()||'Serviço de impressão 3D';
+  var cl=document.getElementById('cliente').value.trim();
+  document.getElementById('o-data').textContent=new Date().toLocaleDateString('pt-BR');
+  document.getElementById('o-cliente').textContent=cl?' · Cliente: '+cl:'';
+  document.getElementById('o-servico').textContent=sv;
+  document.getElementById('o-qtd').textContent=qtd;
+  document.getElementById('o-unit').textContent=brl(preco);
+  document.getElementById('o-sub').textContent=brl(preco*qtd);
+  document.getElementById('o-total').textContent=brl(preco*qtd);
+  var items=[['Filamento',mat],['Energia',en],['Máquina',mq],['Seu trabalho',mo],['Embalagem',emb]];
+  var h='';
+  items.forEach(function(it){var p=custo>0?it[1]/custo*100:0;
+    h+='<div class="row"><span>'+it[0]+'</span><span class="bar"><i style="width:'+p.toFixed(0)+'%"></i></span><b>'+brl(it[1])+'</b></div>'});
+  h+='<div class="row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><span>Custo total</span><span></span><b>'+brl(custo)+'</b></div>';
+  document.getElementById('rows').innerHTML=h;
+  try{var o={};ids.forEach(function(i){o[i]=document.getElementById(i).value});localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}
+}
+ids.forEach(function(i){document.getElementById(i).addEventListener('input',calc)});
+document.getElementById('reset').addEventListener('click',function(){ids.forEach(function(i){document.getElementById(i).value=defaults[i]});calc()});
+document.getElementById('clear').addEventListener('click',function(){ids.forEach(function(i){document.getElementById(i).value=''});calc()});
+document.getElementById('print').addEventListener('click',function(){calc();window.print()});
+calc();
+</script>
+</body>
+</html>
