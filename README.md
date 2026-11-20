@@ -17,14 +17,7 @@ O resultado mostra o preço por peça, o lucro e o total para a quantidade infor
 
 ## Como usar
 
-Abra o `index.html` no navegador.
-
-## Publicar no GitHub Pages
-
-1. Envie `index.html` e `README.md` para um repositório.
-2. Vá em **Settings → Pages**.
-3. Em **Source**, escolha a branch `main` e a pasta `/ (root)`.
-4. Salve. O site fica disponível em `https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO/`.
+Abra o `https://marinho-neves.github.io/Calculadora-de-custos-3D/` no navegador.
 
 ## Fórmula
 
