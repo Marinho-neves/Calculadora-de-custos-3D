@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Calculadora de preço 3D</title>
+<title>AVYA 3D</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
 <style>
 :root{--bg:#eef1f4;--surface:#fff;--ink:#1b2330;--muted:#5a6577;--line:#d6dce4;--accent:#2f5bea;--accent-ink:#fff;--good:#14804a;
@@ -38,13 +38,16 @@ button{font:inherit;background:none;border:1px solid var(--line);color:var(--mut
 .one{grid-template-columns:1fr}
 .actions{display:flex;flex-wrap:wrap;gap:8px}
 button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.logo-tela{display:block;width:100%;max-width:420px;height:auto;margin:0 auto 8px}
 #orcamento{display:none}
 @media print{
-  @page{margin:18mm}
+  @page{margin:0}
   html,body{background:#fff!important;color:#000!important}
+  body{padding:18mm!important}
   :root{padding:0!important}
   main,.bottom{display:none!important}
   #orcamento{display:block;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#000}
+  #orcamento .logo-print{display:block;width:260px;height:auto;margin:0 0 16px}
   #orcamento h1{font-size:1.8rem;margin:0 0 4px}
   #orcamento .meta{color:#444;margin:0 0 24px}
   #orcamento table{width:100%;border-collapse:collapse}
@@ -58,7 +61,7 @@ button.primary{background:var(--accent);color:var(--accent-ink);border-color:var
 </head>
 <body>
 <main>
-<h1>Calculadora de preço 3D</h1>
+<img class="logo-tela" src="img/logo.png" alt="Logo AVYA 3D" width="2172" height="724">
 <p class="sub">Preencha os dados da peça e veja quanto cobrar.</p>
 <div class="layers" aria-hidden="true"></div>
 
@@ -105,6 +108,7 @@ button.primary{background:var(--accent);color:var(--accent-ink);border-color:var
 </div></div>
 
 <section id="orcamento">
+<img class="logo-print" src="img/logoimp.png" alt="Logo AVYA 3D">
 <h1>Orçamento</h1>
 <p class="meta"><span id="o-data"></span><span id="o-cliente"></span></p>
 <table>
